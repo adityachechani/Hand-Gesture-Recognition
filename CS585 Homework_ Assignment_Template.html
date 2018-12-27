@@ -1,0 +1,174 @@
+
+<!-- saved from url=(0108)http://cs-people.bu.edu/adityac/cs585/hw2/CS585%20Homework_%20HW%5b2%5d%20Student%20Name%20%5bAditya%5d.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title> CS585 Homework: Assignment[3] Student Name [Aditya Chechani] [Nidhi Tiwari]  </title>
+<style>
+<!--
+body{
+font-family: 'Trebuchet MS', Verdana;
+}
+p{
+font-family: 'Trebuchet MS', Times;
+margin: 10px 10px 15px 20px;
+}
+h3{
+margin: 5px;
+}
+h2{
+margin: 10px;
+}
+h1{
+margin: 10px 0px 0px 20px;
+}
+div.main-body{
+align:center;
+margin: 30px;
+}
+hr{
+margin:20px 0px 20px 0px;
+}
+-->
+</style>
+<style type="text/css" abt="234"></style>
+
+</head>
+
+<body style="">
+<center>
+<a href="http://www.bu.edu/"><img border="0" src="bu-logo.gif" width="119" height="120"></a>
+</center>
+
+<h1>Assignment 3</h1>
+<p> 
+ CS 585 Assignment 3 <br>
+ Aditya Chechani <br>
+ Nidhi Tiwari <br>
+ <!--Your teammate names if applicable <br>-->
+OCT. 10, 2018
+</p>
+
+<div class="main-body">
+<hr>
+<h2> Problem Definition </h2>
+<p>
+The goal of this assignment is to implement algorithms that can recognise shapes and gestures made by the hand.<br>
+
+The program should take video frames of the hand as an input, analyze and process it to recognise the gesture that the hand is making.<br>
+Finally, we must visualize the output in a graphical display.<br>
+
+Parts of the assignment: <br>
+	1. Implement algorithm to perform hand gesture recognition<br>
+	2. Visualise the output in a graphical <br>
+	3. Implement algorithm to recognize multiple hand gestures.
+</p>
+
+<hr>
+<h2> Method and Implementation </h2>
+<p> 
+<br>
+  </p><h4>1. Skin Detection</h4>
+	<li> Converted the input RGB frame to HSV and estimated HSV values of skin color to function as the benchmark for thresholding input frame according to skin color. </li>
+	<li> Obtained ellipsoid structuring kernel and applied morphological operations like erosion and dilation to it followed by Gaussian Blur. This gives us the skinmask </li>
+    <li>The skinmask will be used in future template matching operations to detect the hand shape in an input frame</li>
+    <li>In order to threshold the input video frames, and carry out precise segmentation, trackbars were implemented to get csv values according to the skin color.</li>
+	
+<br>
+  <h4>2. Template Matching </h4>
+	<li> Created segmented templates for different hand gestures. </li>
+    <li> Implemented Multiscale Multiple Template matching between gesture templates and the incoming video frames so that the template matching operation is invariant to the scale difference between the object in the template and the incoming frame.  </li>
+    <li>The bounding boxes and the skinmask used to identify the hand and scaled according to the proportion of change in the size of the hand as it moves near and farther away from the camera. </li>
+    <li>Implemented gesture matching for the following gestures: 
+        <ul> <li> Palm </li> <li> Thumbs Up </li> <li> Fist </li> <li> Pointing Finger </li></ul></li>
+
+<br>
+  <h4>3. Finger counting </h4>
+	<li> We wanted to design an algorithm where the number of fingers being held up can be calculated without have templates saved for each number. </li>
+	<li> For this we find contours of the hand in the frame. The method of finding contours selected is “CV_RETR_EXTERNAL”, which means it will just return the most external contour, ignoring eventual contours that are inside the most external region. We then plot the convex hull which is a line passing through a set of convex hull points (determined by te contours). We draw the convex hull for the largest contour shown in green in the graphical display</li>
+    <li>Now, we apply the convexityDefects function to get the defect points using the contours and the convex hull. The convex defects are points of gaps between the contour and the convex hull  </li>
+	<li> The “convexityDefects” function returns a vector of tuples of four values. The first value is the initial point of the defect region. The second value is the ending point of the defect region. The third value is the “middle” point of the defect region that connects the initial point and the ending point. What only interests us in the initial point, that is the point where our fingertips are placed.  </li>
+    <li>There are far more points than just our fingertips. We need to do a filtering for only the points of our interest. Conditions for defect point selection 
+        <ul><li>i) Consider the inner angle between the two lines of the defect region to be between a certain interval;</li>  <li> ii) Consider the angle between the initial point and the center of the contour region to be between a certain interval;</li> <li> iii) Consider the length of the line from the initial point to the middle point to be above a certain threshold. I think only those three are enough.</li></ul></li>
+<br> 
+  <h4>4. Templates </h4>
+<table border=1>
+<tr><th>Name</th><th>Template</th></tr>
+<tr><td>Palm</td><td><img src="close_palm.jpg" width="100" alt="Palm Template" >
+<tr><td>Fist</td><td><img src="Fist.jpg" width="100" alt="Hole Template" >
+<tr><td>Thumbs Up</td><td><img src="thumbs_up.jpg" width="100" alt="Peace Template" >
+<tr><td>Pointing Finger</td><td><img src="out.png" width="100" alt="ThumbUp Template" >
+</table>
+<p></p>
+
+<hr>
+<h3> Functions for reference </h3>
+<p>
+</p><li>Functions created in the code to carry out the algorithmic steps described earlier. </li>
+<li>SkinDetect(frame, skinMask): Uses the lower and upper bound HSV values to detect skin color </li>
+<li>MultipleTemplateMatching(resized, Templates[i], thresh, closeness, List_Matches, i) : Gives  upper left corner of gestures matched with threshold value 0.8</li>
+<li>CountFingers: Used for counting fingers using convex hull and its defects </li> 
+<li>innerAngle: Used for calculating angle between the fingers for noise filtering</li>
+<p></p>
+
+
+<hr>
+<h2> Results</h2>
+<p>Here are several recognition results of all four hand shapes and finger counts:</p>
+<table border="1">
+<tr><th>Hand Shape Name</th><th>Result</th></tr>
+<tr><td>Finger Pointing</td><td><img src="Out_snip.jpg" width="400" alt="Recongnition of a palm"></td></tr>
+<tr><td>Multiple Detection</td><td><img src="palm_fist_snip.jpg" width="400" alt="Recongnition of a hole-shaped hand"></td></tr>
+<tr><td>Multiple Detection</td><td><img src="palm_thumb_snip.jpg" width="400" alt="Recongnition of a V-shaped hand"></td></tr>
+<tr><td>Counting</td><td><img src="five_snip.jpg" width="400" alt="Recongnition of a thumb-up"></td></tr>
+<tr><td>Counting</td><td><img src="three_snip.jpg" width="400" alt="Recongnition of a thumb-up"></td></tr>
+</table>
+<p>A real-time demo of the above recognition process can be viewed in the video below (Link: https://youtu.be/GA08hlMR-U4). </p>
+<iframe width="560" height="315" src="https://youtu.be/GA08hlMR-U4" frameborder="0" allowfullscreen></iframe>
+
+
+<p>A confusion matrix can be obtained by changing the handshape slightly to see what will the program recognize it as. Here is the result.</p>
+<table border="1">
+<tr><th>Hand Shape</th><th>Palm</th><th>Fist</th><th>Thumbs Up</th><th>Pointing Finger</th></tr>
+<tr><th>Palm</th><td>9</td><td>0</td><td>1</td><td>1</td></tr>
+<tr><th>Fist</th><td>1</td><td>7</td><td>2</td><td>0</td></tr>
+<tr><th>Thumbs Up</th><td>1</td><td>1</td><td>9</td><td>0</td></tr>
+<tr><th>Pointing Finger</th><td>1</td><td>1</td><td>3</td><td>5</td></tr>
+<table>
+
+
+
+<h2>Source Code</h2>
+<p> <a href="https://cs-people.bu.edu/adityac/cs585/hw3/src/hw3-Chechani.zip">Source code</a></p>
+
+<hr>
+<h2> Conclusion </h2>
+
+<p>
+</p><li>Skin Detection is dependent on every individual but we found out that using trackbars to decide the range helps in speeding up the process. The detection is quite accurate</li>
+<li>For real time gesture recognition, it was a good decision to implement multiscale template matching. For half the gestures the results were pretty good while for the other half there were a few false positives</li>
+<li>We were also able to detect multipile gestures in a frame and displayed it on top. </li>
+<li>Our algorithm for detecting fingers is quite robust and accurate as well giving a clear boundary of contour and fingers</li>
+<li>What we would like to improve is the multiple bounding boxes being displayed for the same gesture. That is because the frame speed is quite fast for us to see the difference</li>
+<li>We implemented this assignment in C++ and Python, and turns out python is a lot slower than C++ because of video processing.</li>
+<p></p>
+
+
+<hr>
+<h2> Credits and Bibliography </h2>
+<p>
+OpenCv Documentation
+<a href="https://opencv.org/">OpenCV Library</a>
+	And C++ help from the web.
+</p>
+<p>
+I'd like to thank Professor Betke and Teaching Assistant Yifu Hu for their help and guidance 
+and thanks to my fellow classmates who helped through the discussions on Piazza.
+</p>
+<hr>
+</div>
+
+
+
+
+
+
+</body></html>
